@@ -1,32 +1,7 @@
-// src/lib/api/index.ts
 import axios from 'axios';
 import { store } from '@/lib/redux/store';
 import { API_BASE_URL } from './config';
 
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'X-Api-Key': process.env.NEXT_PUBLIC_API_KEY,
-  },
-});
-
-apiClient.interceptors.request.use(
-  config => {
-    const state = store.getState();
-    const loginToken = state.auth.token; 
-    if (loginToken) {
-      config.headers['Authorization'] = `Bearer ${loginToken}`;
-    }
-
-    return config;
-  },
-  error => {
-    return Promise.reject(error);
-  }
-);
-
-// بقیه کد بدون تغییر است
 export interface User {
   id: number;
   email: string;
@@ -43,6 +18,29 @@ export interface GetUsersResponse {
   data: User[];
 }
 
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'X-Api-Key': process.env.NEXT_PUBLIC_API_KEY,
+  },
+});
+
+apiClient.interceptors.request.use(
+  config => {
+    const state = store.getState();
+    const loginToken = state.auth.token;
+
+    if (loginToken) {
+      config.headers['Authorization'] = `Bearer ${loginToken}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// get user request
 export const fetchUsers = async (
   page: number = 1
 ): Promise<GetUsersResponse> => {
@@ -50,10 +48,16 @@ export const fetchUsers = async (
   return response.data;
 };
 
+// login request
 export const loginUser = async (credentials: {
   email: string;
   password: string;
 }) => {
   const response = await apiClient.post('/login', credentials);
   return response.data;
+};
+
+//delete request
+export const deleteUser = async (userId: number) => {
+  await apiClient.delete(`/users/${userId}`);
 };
