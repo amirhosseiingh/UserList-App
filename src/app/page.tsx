@@ -1,7 +1,8 @@
+import UsersPage from "./users/page";
 
 
 export default function Home() {
   return (
-    <p className="text-red-400">hello</p>
+   <UsersPage/>
   );
 }
