@@ -18,6 +18,7 @@ import { setToken } from '@/lib/redux/slices/authSlice';
 import {
   fetchUsersFromAPI,
   deleteUserById,
+  addUser,
 } from '@/lib/redux/slices/usersSlice';
 import Link from 'next/link';
 import AddUserModal from '@/components/common/addUserModal';
@@ -204,9 +205,10 @@ const [isAddModalOpen, setAddModalOpen] = useState(false);
       {isAddModalOpen && (
         <AddUserModal
           onClose={() => setAddModalOpen(false)}
-          onAddUser={newUser => {
-            console.log('New user data:', newUser); 
-            setAddModalOpen(false); 
+          onAddUser={newUserData => {
+            dispatch(addUser(newUserData)); 
+            toast.success('User added successfully'); 
+            setAddModalOpen(false);
           }}
         />
       )}
