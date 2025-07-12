@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
 import {
   FiEdit,
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
   FiPlus,
+  FiRefreshCw,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -19,9 +20,13 @@ import {
   fetchUsersFromAPI,
   deleteUserById,
   addUser,
+  updateUser,
 } from '@/lib/redux/slices/usersSlice';
 import Link from 'next/link';
 import AddUserModal from '@/components/common/addUserModal';
+import { User } from '@/lib/api';
+import EditUserModal from '@/components/common/editUserModal';
+import LoadingSpinner from '@/components/common/loadingSpinner';
 
 export default function UsersPage() {
   const dispatch = useAppDispatch();
@@ -31,50 +36,62 @@ export default function UsersPage() {
   );
 
   useEffect(() => {
-
     if (isAuthenticated && users.length === 0) {
       dispatch(fetchUsersFromAPI());
     }
-    // [isAuthenticated, users.length, dispatch] 
+    // [isAuthenticated, users.length, dispatch]
   }, [isAuthenticated, users.length, dispatch]);
 
   const [page, setPage] = useState(1);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
-
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  // login
   const handleLoginSuccess = (token: string) => {
     dispatch(setToken(token));
-    toast.success('Successfully logged in!');
+    toast.success('Successfully logged in');
   };
-
-  const handleEdit = (userId: number) => {
-    console.log('Edit user:', userId);
-  };
-
-  const openDeleteModal = (userId: number) => {
-    setUserToDelete(userId);
-    setDeleteModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModalOpen(false);
-    setUserToDelete(null);
-  };
-
-  const confirmDelete = () => {
-    if (userToDelete) {
-      dispatch(deleteUserById(userToDelete)); 
-      toast.success('User successfully removed!');
-      closeDeleteModal();
-    }
-  };
-
   if (!isAuthenticated) {
     return <LoginModal onLoginSuccess={handleLoginSuccess} />;
   }
 
+  // edit
+  const handleEdit = (userId: number) => {
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      setUserToEdit(user);
+      setEditModalOpen(true);
+    }
+  };
+
+  // delete
+  const openDeleteModal = (userId: number) => {
+    setUserToDelete(userId);
+    setDeleteModalOpen(true);
+  };
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setUserToDelete(null);
+  };
+  const confirmDelete = () => {
+    if (userToDelete) {
+      dispatch(deleteUserById(userToDelete));
+      toast.success('User successfully removed!');
+      closeDeleteModal();
+    }
+  };
+  const handleReload = () => {
+    dispatch(fetchUsersFromAPI())
+  };
+
   if (userStatus === 'loading') {
-    return <div className="p-10 text-center">Loading user data...</div>;
+    return (
+      <div className="p-10 text-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   const usersPerPage = 6;
@@ -83,8 +100,6 @@ export default function UsersPage() {
     (page - 1) * usersPerPage,
     page * usersPerPage
   );
-
-const [isAddModalOpen, setAddModalOpen] = useState(false);
 
   return (
     <>
@@ -97,13 +112,22 @@ const [isAddModalOpen, setAddModalOpen] = useState(false);
                 View accounts of registered users
               </span>
             </div>
-            <button
-              onClick={() => setAddModalOpen(true)}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-            >
-              <FiPlus />
-              <span>Add User</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleReload()} 
+                className="flex items-center gap-2 rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-700"
+              >
+                <FiRefreshCw />
+                <span>Reload</span>
+              </button>
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              >
+                <FiPlus />
+                <span>Add User</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-y-hidden rounded-lg border">
@@ -206,9 +230,20 @@ const [isAddModalOpen, setAddModalOpen] = useState(false);
         <AddUserModal
           onClose={() => setAddModalOpen(false)}
           onAddUser={newUserData => {
-            dispatch(addUser(newUserData)); 
-            toast.success('User added successfully'); 
+            dispatch(addUser(newUserData));
+            toast.success('User added successfully');
             setAddModalOpen(false);
+          }}
+        />
+      )}
+      {isEditModalOpen && (
+        <EditUserModal
+          user={userToEdit}
+          onClose={() => setEditModalOpen(false)}
+          onUpdateUser={updatedUser => {
+            dispatch(updateUser(updatedUser));
+            toast.success('User updated successfully!');
+            setEditModalOpen(false);
           }}
         />
       )}

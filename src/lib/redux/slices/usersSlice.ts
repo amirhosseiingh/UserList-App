@@ -11,8 +11,7 @@ const initialState: UsersState = {
   status: 'idle',
 };
 
-export const fetchUsersFromAPI = createAsyncThunk(
-  'users/fetchUsers',
+export const fetchUsersFromAPI = createAsyncThunk('users/fetchUsers',
   async () => {
     const firstPage = await apiFetchUsers(1);
     const secondPage = await apiFetchUsers(2);
@@ -35,6 +34,12 @@ const usersSlice = createSlice({
       };
       state.list.unshift(newUser);
     },
+    updateUser: (state, action: PayloadAction<User>) => {
+      const index = state.list.findIndex(user => user.id === action.payload.id);
+      if (index !== -1) {
+        state.list[index] = action.payload;
+      }
+    },
     deleteUserById: (state, action: PayloadAction<number>) => {
       state.list = state.list.filter(user => user.id !== action.payload);
     },
@@ -54,6 +59,6 @@ const usersSlice = createSlice({
   },
 });
 
-export const { addUser, deleteUserById } = usersSlice.actions;
+export const { addUser, deleteUserById, updateUser } = usersSlice.actions;
 
 export default usersSlice.reducer;

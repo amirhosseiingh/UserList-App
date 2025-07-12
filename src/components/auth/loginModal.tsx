@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FiLogIn } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useLogin } from '@/hooks/useLogin'; 
+import LoadingSpinner from '../common/loadingSpinner';
 
 interface LoginModalProps {
   onLoginSuccess: (token: string) => void;
@@ -82,7 +83,7 @@ export default function LoginModal({ onLoginSuccess }: LoginModalProps) {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors flex items-center justify-center gap-2 disabled:bg-blue-400"
             >
               {isPending ? (
-                <span>Logging in...</span>
+                <span><LoadingSpinner/></span>
               ) : (
                 <>
                   <FiLogIn />
