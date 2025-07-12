@@ -105,8 +105,8 @@ export default function UsersPage() {
     <>
       <div className="bg-slate-50 min-h-screen">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
-          <div className="flex items-center justify-between pb-6">
-            <div>
+          <div className="flex flex-col items-start justify-between pb-6 sm:flex-row sm:items-center">
+            <div className="mb-4 sm:mb-0">
               <h2 className="font-semibold text-gray-700">User Accounts</h2>
               <span className="text-xs text-gray-500">
                 View accounts of registered users
@@ -114,18 +114,18 @@ export default function UsersPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => handleReload()} 
+                onClick={() => handleReload()}
                 className="flex items-center gap-2 rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-700"
               >
                 <FiRefreshCw />
-                <span>Reload</span>
+                <span className="hidden sm:inline">Reload</span>
               </button>
               <button
                 onClick={() => setAddModalOpen(true)}
                 className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
               >
                 <FiPlus />
-                <span>Add User</span>
+                <span className="hidden sm:inline">Add User</span>
               </button>
             </div>
           </div>
